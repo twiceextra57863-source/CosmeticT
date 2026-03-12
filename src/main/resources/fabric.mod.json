@@ -1,12 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "tbuttonmod",
-  "version": "${version}",
+  "version": "1.0.0",
   "name": "T Button Mod",
-  "description": "Adds a T button to the title screen to access a custom dashboard.",
-  "authors": [
-    "YourName"
-  ],
+  "description": "Adds a T button to main menu with cosmetic dashboard",
+  "authors": ["YourName"],
   "contact": {},
   "license": "MIT",
   "icon": "assets/tbuttonmod/icon.png",
@@ -23,9 +21,9 @@
     "tbuttonmod.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.15.7",
-    "minecraft": "~1.20.4",
-    "java": ">=17",
+    "fabricloader": ">=0.15.0",
+    "minecraft": "1.21",
+    "java": ">=21",
     "fabric-api": "*"
   }
 }
