@@ -1,8 +1,36 @@
-build/
-.gradle/
-*.iml
+# Eclipse
+*.launch
+.classpath
+.project
+.settings/
+bin/
+
+# IntelliJ
+*.ipr
+*.iws
 .idea/
 out/
-bin/
-run/
+
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Mac
 .DS_Store
+
+# Fabric
+run/
+
+# Compiled files
+*.class
+*.log
+*.jar
+*.zip
+*.tar.gz
+*.rar
+
+# Mod specific
+crash-reports/
+logs/
