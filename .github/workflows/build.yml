@@ -5,53 +5,42 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Setup Java JDK
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: gradle
-      
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-      
+          
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-      
+        with:
+          gradle-version: "8.7"
+          
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+        
+      - name: Clean build directory
+        run: rm -rf build
+        
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace --no-daemon
+        
+      - name: Check build output
+        run: ls -la build/libs/
         
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: TButtonMod-Artifacts
-          path: build/libs/
-          
-      - name: Get version
-        id: version
-        run: echo "version=$(grep 'mod_version' gradle.properties | cut -d'=' -f2)" >> $GITHUB_OUTPUT
-      
-      - name: Create Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: TButton Mod v${{ steps.version.outputs.version }}
-          files: build/libs/*.jar
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: TButtonMod
+          path: build/libs/*.jar
+          if-no-files-found: error
