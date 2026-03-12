@@ -1,11 +1,17 @@
 {
   "schemaVersion": 1,
   "id": "tbuttonmod",
-  "version": "1.0.0",
-  "name": "T Button Mod",
-  "description": "Adds a T button to main menu with cosmetic dashboard",
-  "authors": ["YourName"],
-  "contact": {},
+  "version": "${version}",
+  "name": "TButton Mod",
+  "description": "Adds a T button to main menu with cosmetic dashboard and 3D skin preview",
+  "authors": [
+    "YourName"
+  ],
+  "contact": {
+    "homepage": "https://github.com/YOUR_USERNAME/tbuttonmod",
+    "sources": "https://github.com/YOUR_USERNAME/tbuttonmod",
+    "issues": "https://github.com/YOUR_USERNAME/tbuttonmod/issues"
+  },
   "license": "MIT",
   "icon": "assets/tbuttonmod/icon.png",
   "environment": "*",
@@ -22,8 +28,8 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.0",
-    "minecraft": "1.21",
-    "java": ">=21",
-    "fabric-api": "*"
+    "fabric-api": "*",
+    "minecraft": "~1.21",
+    "java": ">=21"
   }
 }
