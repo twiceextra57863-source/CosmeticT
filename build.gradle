@@ -16,6 +16,10 @@ repositories {
 		name = "Fabric"
 		url = "https://maven.fabricmc.net/"
 	}
+	maven {
+		name = "Minecraft Libraries"
+		url = "https://libraries.minecraft.net/"
+	}
 }
 
 loom {
@@ -39,7 +43,7 @@ dependencies {
 	// Fabric Loader
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
-	// Fabric API
+	// Fabric API - CORRECTED FOR 1.21
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
@@ -72,12 +76,3 @@ jar {
 		rename { "${it}_${project.archivesBaseName}" }
 	}
 }
-
-// Ensure the build directory exists
-tasks.register('prepareBuildDir') {
-	doLast {
-		file('build/libs').mkdirs()
-	}
-}
-
-build.dependsOn prepareBuildDir
