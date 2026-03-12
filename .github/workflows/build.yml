@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Download Gradle Wrapper JAR
+      - name: Download Gradle Wrapper
         run: |
           mkdir -p gradle/wrapper
           curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.7.0/gradle/wrapper/gradle-wrapper.jar
@@ -29,11 +29,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
         
+      - name: Clean previous builds
+        run: rm -rf build .gradle
+        
       - name: Build with Gradle
         run: ./gradlew build --stacktrace
+        env:
+          GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false
+        
+      - name: List build output
+        run: ls -la build/libs/
         
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: TButtonMod
+          name: TButtonMod-1.21
           path: build/libs/*.jar
+          if-no-files-found: warn
