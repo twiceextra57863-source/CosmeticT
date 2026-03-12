@@ -1,4 +1,21 @@
 {
-  "modmenu.descriptionTranslation.tbuttonmod": "Adds a T button to your Title Screen.",
-  "modmenu.nameTranslation.tbuttonmod": "T Button Mod"
+  "key.tbuttonmod.dashboard": "Open T-Cosmetics Dashboard",
+  "category.tbuttonmod": "TButton Mod",
+  
+  "screen.tbuttonmod.dashboard": "T-Cosmetics Dashboard",
+  "screen.tbuttonmod.skin_preview": "Skin Preview",
+  "screen.tbuttonmod.theme_settings": "Theme Settings",
+  
+  "button.tbuttonmod.apply": "Apply",
+  "button.tbuttonmod.cancel": "Cancel",
+  "button.tbuttonmod.save": "Save",
+  
+  "theme.tbuttonmod.dark_purple": "Dark Purple",
+  "theme.tbuttonmod.ocean_blue": "Ocean Blue",
+  "theme.tbuttonmod.forest_green": "Forest Green",
+  "theme.tbuttonmod.midnight_black": "Midnight Black",
+  
+  "text.tbuttonmod.no_skins": "No skins found. Place PNG files in TCosmetics/skins/",
+  "text.tbuttonmod.select_skin": "Select a skin to preview",
+  "text.tbuttonmod.folder_location": "TCosmetics folder: %s"
 }
