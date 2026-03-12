@@ -23,7 +23,7 @@ repositories {
 }
 
 loom {
-    splitEnvironmentSourceSets()
+	splitEnvironmentSourceSets()
 
 	mods {
 		"tbuttonmod" {
@@ -31,6 +31,9 @@ loom {
 			sourceSet sourceSets.client
 		}
 	}
+	
+	// Access widener for newer APIs if needed
+	accessWidenerPath = file("src/main/resources/tbuttonmod.accesswidener")
 }
 
 dependencies {
@@ -43,7 +46,7 @@ dependencies {
 	// Fabric Loader
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
-	// Fabric API - CORRECTED FOR 1.21
+	// Fabric API - LATEST VERSION 0.100.0+1.21
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
