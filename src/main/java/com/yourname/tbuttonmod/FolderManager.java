@@ -1,17 +1,37 @@
 package com.yourname.tbuttonmod;
 
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
 import java.io.File;
-import java.nio.file.Path;
+import java.io.IOException;
 
 public class FolderManager {
-    public static final Path CONFIG_DIR = FabricLoader.getInstance().getConfigDir().resolve("tbuttonmod");
-
-    public static void init() {
-        File configFolder = CONFIG_DIR.toFile();
-        if (!configFolder.exists()) {
-            if (configFolder.mkdirs()) {
-                TButtonMod.LOGGER.info("Created config directory for TButtonMod.");
+    
+    public static void createFolders() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        File gameDir = client.runDirectory;
+        
+        // Create main TCosmetics folder
+        File tCosmeticFolder = new File(gameDir, "TCosmetics");
+        if (!tCosmeticFolder.exists()) {
+            tCosmeticFolder.mkdirs();
+        }
+        
+        // Create skins subfolder
+        File skinsFolder = new File(tCosmeticFolder, "skins");
+        if (!skinsFolder.exists()) {
+            skinsFolder.mkdirs();
+        }
+        
+        // Create README file
+        File readme = new File(tCosmeticFolder, "README.txt");
+        if (!readme.exists()) {
+            try {
+                readme.createNewFile();
+                // Write instructions
+                java.nio.file.Files.write(readme.toPath(), 
+                    "Place your skin PNG files in the 'skins' folder to use them in the T-Cosmetics dashboard!".getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
