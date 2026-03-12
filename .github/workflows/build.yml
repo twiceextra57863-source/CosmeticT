@@ -26,6 +26,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           
+      - name: Setup Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
       - name: Make gradlew executable
         run: chmod +x gradlew
         
@@ -33,16 +43,23 @@ jobs:
         run: rm -rf build .gradle
         
       - name: Build with Gradle
-        run: ./gradlew build --stacktrace
+        run: ./gradlew build --stacktrace --refresh-dependencies
         env:
           GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false
-        
+          
       - name: List build output
-        run: ls -la build/libs/
+        run: |
+          ls -la build/libs/
+          echo "Build files:"
+          find build/libs -type f -name "*.jar" | xargs -I {} basename {}
         
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: TButtonMod-1.21
+          name: TButtonMod-1.21-fabric-${{ github.sha }}
           path: build/libs/*.jar
-          if-no-files-found: warn
+          if-no-files-found: error
+          
+      - name: Get Version
+        id: version
+        run: echo "version=$(grep 'mod_version' gradle.properties | cut -d'=' -f2)" >> $GITHUB_OUTPUT
