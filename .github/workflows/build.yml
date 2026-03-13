@@ -1,22 +1,27 @@
-name: Build
+name: Build TButton Mod
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
+          distribution: 'temurin'
           java-version: 21
-          distribution: temurin
-      
-      - name: Build with Gradle
-        run: gradle build  # Direct gradle command
-      
-      - name: Upload JAR
+          
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        
+      - name: Build
+        run: gradle build
+        
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: mod-jar
+          name: tbuttonmod
           path: build/libs/*.jar
