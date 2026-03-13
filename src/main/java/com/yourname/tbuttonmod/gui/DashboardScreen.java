@@ -1,24 +1,17 @@
 package com.yourname.tbuttonmod.gui;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import net.minecraft.client.MinecraftClient;
-
-// 🔴 YEH SAB IMPORTS CHAHIYE
-import java.util.Arrays;
-import java.util.List;
 
 import com.yourname.tbuttonmod.gui.widgets.ModernButton;
-import com.yourname.tbuttonmod.skin.SkinManager;
 
 public class DashboardScreen extends Screen {
     private final Screen parent;
     private int backgroundColor = 0xDD1A1A2E;
     private int borderColor = 0xFF6B4E71;
     private int accentColor = 0xFF9B7EBD;
-    
-    private List<String> themes = Arrays.asList("Dark Purple", "Ocean Blue", "Forest Green", "Midnight Black");
     private int currentTheme = 0;
     
     public DashboardScreen(Screen parent) {
@@ -31,16 +24,32 @@ public class DashboardScreen extends Screen {
         super.init();
         
         // Settings button (gear)
-        // Add your buttons here
+        this.addDrawableChild(new ModernButton(
+            this.width - 40, 10, 30, 30,
+            Text.literal("⚙"),
+            button -> this.openSettings()
+        ));
+        
+        // Menu button (3 lines)
+        this.addDrawableChild(new ModernButton(
+            10, 10, 30, 30,
+            Text.literal("☰"),
+            button -> this.openMenu()
+        ));
     }
     
     private void openSettings() {
-        // Open settings
+        client.setScreen(new ThemeSettingsScreen(this, 
+            (theme, bgColor, brColor, accColor) -> {
+                this.currentTheme = theme;
+                this.backgroundColor = bgColor;
+                this.borderColor = brColor;
+                this.accentColor = accColor;
+            }, currentTheme));
     }
     
     private void openMenu() {
-        // Open menu
-        MinecraftClient.getInstance().setScreen(new MenuScreen(this));
+        client.setScreen(new MenuScreen(this));
     }
     
     @Override
@@ -55,7 +64,7 @@ public class DashboardScreen extends Screen {
         context.fill(this.width - 5, 0, this.width, this.height, borderColor);
         
         // Draw title
-        drawCustomText(context, "T-COSMETICS", this.width / 2 - 100, 30, accentColor);
+        drawCustomText(context, "T-COSMETICS DASHBOARD", this.width / 2 - 120, 30, accentColor);
         
         super.render(context, mouseX, mouseY, delta);
     }
