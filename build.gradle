@@ -32,8 +32,40 @@ loom {
 		}
 	}
 	
-	// REMOVE THIS LINE - ya comment out karein
-	// accessWidenerPath = file("src/main/resources/tbuttonmod.accesswidener")
+	// Conditional access widener with better error handling
+	def awFile = file("src/main/resources/tbuttonmod.accesswidener")
+	if (awFile.exists()) {
+		accessWidenerPath = awFile
+		println "✅ Access widener found and loaded: ${awFile}"
+		
+		// Verify the access widener file is not empty (optional)
+		if (awFile.length() == 0) {
+			println "⚠️  Warning: Access widener file is empty"
+		}
+	} else {
+		println "ℹ️  No access widener file found at: ${awFile}"
+		println "ℹ️  Skipping access widener configuration - this is fine if you don't need it"
+		
+		// Optional: Create a placeholder message
+		println "ℹ️  To use access widener, create: src/main/resources/tbuttonmod.accesswidener"
+	}
+	
+	// Add runs configuration for testing
+	runs {
+		client {
+			client()
+			setConfigName("Minecraft Client")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+		
+		server {
+			server()
+			setConfigName("Minecraft Server")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+	}
 }
 
 dependencies {
@@ -61,6 +93,11 @@ processResources {
 			   "minecraft_version": project.minecraft_version,
 			   "loader_version": project.loader_version
 	}
+	
+	// Include access widener if it exists
+	filesMatching("*.accesswidener") {
+		expand "version": project.version
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -78,4 +115,48 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}" }
 	}
+	
+	// Ensure access widener is included in the JAR if it exists
+	from("src/main/resources") {
+		include "*.accesswidener"
+	}
+}
+
+// Add a task to create access widener file if needed
+tasks.register('createAccessWidener') {
+	description = 'Creates an empty access widener file'
+	group = 'fabric'
+	
+	doLast {
+		def awDir = file("src/main/resources")
+		def awFile = file("src/main/resources/tbuttonmod.accesswidener")
+		
+		if (!awDir.exists()) {
+			awDir.mkdirs()
+			println "Created directory: ${awDir}"
+		}
+		
+		if (!awFile.exists()) {
+			awFile.text = """# TButton Mod Access Widener
+# Add your access widening rules here if needed
+# Format: <access> <class> <member> <descriptor>
+# Example: accessible class com/example/Class method ()V
+"""
+			println "Created empty access widener file: ${awFile}"
+		} else {
+			println "Access widener file already exists: ${awFile}"
+		}
+	}
+}
+
+// Clean task with better output
+clean {
+	delete file("run")
+	delete file("build")
+	println "Cleaned build and run directories"
+}
+
+// Add this to ensure proper resource handling
+tasks.processResources {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
