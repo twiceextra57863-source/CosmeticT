@@ -4,6 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
+
+// 🔴 YEH SAB IMPORTS CHAHIYE
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
