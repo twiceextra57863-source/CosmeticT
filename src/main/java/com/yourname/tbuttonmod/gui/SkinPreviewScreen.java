@@ -1,4 +1,4 @@
-package com.yourname.tbuttonmod;
+package com.yourname.tbuttonmod.gui;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -21,7 +21,7 @@ public class SkinPreviewScreen extends Screen {
     
     private void loadSkins() {
         File skinsFolder = new File(
-            net.minecraft.client.MinecraftClient.getInstance().runDirectory, 
+            this.client.runDirectory, 
             "TCosmetics/skins"
         );
         
@@ -39,17 +39,25 @@ public class SkinPreviewScreen extends Screen {
     
     @Override
     protected void init() {
-        super.init();
+        int centerX = this.width / 2 - 50;
+        
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("🔄 Reload"),
+            button -> {
+                skinFiles.clear();
+                loadSkins();
+            }
+        ).dimensions(centerX - 100, this.height - 40, 80, 20).build());
         
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("← Back"),
             button -> this.client.setScreen(parent)
-        ).dimensions(this.width / 2 - 50, this.height - 40, 100, 20).build());
+        ).dimensions(centerX + 20, this.height - 40, 80, 20).build());
     }
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(0, 0, this.width, this.height, 0xDD1A1A2E);
+        this.renderBackground(context, mouseX, mouseY, delta);
         
         // Title
         context.drawCenteredTextWithShadow(this.textRenderer, 
@@ -57,26 +65,30 @@ public class SkinPreviewScreen extends Screen {
             this.width / 2, 20, 0xFF9B7EBD);
         
         // Skin list
-        int y = 50;
         if (skinFiles.isEmpty()) {
             context.drawCenteredTextWithShadow(this.textRenderer, 
                 Text.literal("No skins found in TCosmetics/skins/"), 
                 this.width / 2, this.height / 2, 0xFF5555);
+            
+            context.drawCenteredTextWithShadow(this.textRenderer, 
+                Text.literal("Add .png files to the folder and restart"), 
+                this.width / 2, this.height / 2 + 20, 0x888888);
         } else {
             context.drawTextWithShadow(this.textRenderer, 
-                Text.literal("Available Skins:"), 
+                Text.literal("Available Skins (" + skinFiles.size() + "):"), 
                 50, 45, 0xFFFFFF);
             
-            for (int i = 0; i < Math.min(skinFiles.size(), 10); i++) {
+            for (int i = 0; i < Math.min(skinFiles.size(), 15); i++) {
+                int y = 70 + (i * 20);
                 context.drawTextWithShadow(this.textRenderer, 
                     Text.literal("• " + skinFiles.get(i)), 
-                    70, y + (i * 20), 0xCCCCCC);
+                    70, y, 0xCCCCCC);
             }
             
-            if (skinFiles.size() > 10) {
+            if (skinFiles.size() > 15) {
                 context.drawTextWithShadow(this.textRenderer, 
-                    Text.literal("... and " + (skinFiles.size() - 10) + " more"), 
-                    70, y + 200, 0x888888);
+                    Text.literal("... and " + (skinFiles.size() - 15) + " more"), 
+                    70, 70 + (15 * 20), 0x888888);
             }
         }
         
