@@ -33,6 +33,19 @@ public class MenuScreen extends Screen {
         ).dimensions(centerX, 100, 200, 20).build());
         
         this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("📁 Open Skins Folder"),
+            button -> {
+                try {
+                    java.io.File skinsFolder = new java.io.File(
+                        this.client.runDirectory, "TCosmetics/skins");
+                    java.awt.Desktop.getDesktop().open(skinsFolder);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        ).dimensions(centerX, 130, 200, 20).build());
+        
+        this.addDrawableChild(ButtonWidget.builder(
             Text.literal("← Back"),
             button -> this.client.setScreen(parent)
         ).dimensions(centerX, this.height - 40, 200, 20).build());
