@@ -26,40 +26,19 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           
-      - name: Setup Gradle Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-            
       - name: Make gradlew executable
         run: chmod +x gradlew
         
-      - name: Clean previous builds
-        run: rm -rf build .gradle
-        
-      - name: Build with Gradle
-        run: ./gradlew build --stacktrace --refresh-dependencies
-        env:
-          GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false
-          
-      - name: List build output
+      - name: Fix build.gradle (remove access widener)
         run: |
-          ls -la build/libs/
-          echo "Build files:"
-          find build/libs -type f -name "*.jar" | xargs -I {} basename {}
+          # Remove accessWidenerPath line if it exists
+          sed -i '/accessWidenerPath/d' build.gradle
+          
+      - name: Build with Gradle
+        run: ./gradlew clean build --stacktrace --no-daemon
         
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: TButtonMod-1.21-fabric-${{ github.sha }}
+          name: TButtonMod
           path: build/libs/*.jar
-          if-no-files-found: error
-          
-      - name: Get Version
-        id: version
-        run: echo "version=$(grep 'mod_version' gradle.properties | cut -d'=' -f2)" >> $GITHUB_OUTPUT
