@@ -1,4 +1,4 @@
-package com.yourname.tbuttonmod.gui;
+package com.yourname.tbuttonmod;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -9,7 +9,7 @@ public class MenuScreen extends Screen {
     private final Screen parent;
     
     public MenuScreen(Screen parent) {
-        super(Text.literal("T-Cosmetics Menu"));
+        super(Text.literal("Menu"));
         this.parent = parent;
     }
     
@@ -18,31 +18,48 @@ public class MenuScreen extends Screen {
         super.init();
         
         int centerX = this.width / 2 - 100;
-        int centerY = this.height / 2 - 60;
         
-        // Skin Preview Button
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("📋 Main Dashboard"),
+            button -> this.client.setScreen(parent)
+        ).dimensions(centerX, 50, 200, 20).build());
+        
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("👤 Skin Preview"),
-            button -> client.setScreen(new SkinPreviewScreen(this))
-        ).dimensions(centerX, centerY, 200, 20).build());
+            button -> this.client.setScreen(new SkinPreviewScreen(this))
+        ).dimensions(centerX, 80, 200, 20).build());
         
-        // Settings Button
         this.addDrawableChild(ButtonWidget.builder(
-            Text.literal("⚙ Settings"),
-            button -> client.setScreen(new ThemeSettingsScreen(this, null, 0))
-        ).dimensions(centerX, centerY + 30, 200, 20).build());
+            Text.literal("🎨 Theme Settings"),
+            button -> this.client.setScreen(new ThemeSettingsScreen(this))
+        ).dimensions(centerX, 110, 200, 20).build());
         
-        // Back Button
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("📁 Open Skins Folder"),
+            button -> {
+                try {
+                    java.awt.Desktop.getDesktop().open(new java.io.File(
+                        net.minecraft.client.MinecraftClient.getInstance().runDirectory, 
+                        "TCosmetics/skins"
+                    ));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        ).dimensions(centerX, 140, 200, 20).build());
+        
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("← Back"),
-            button -> client.setScreen(parent)
-        ).dimensions(centerX, centerY + 80, 200, 20).build());
+            button -> this.client.setScreen(parent)
+        ).dimensions(centerX, this.height - 40, 200, 20).build());
     }
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
+        context.fill(0, 0, this.width, this.height, 0xDD1A1A2E);
+        context.drawCenteredTextWithShadow(this.textRenderer, 
+            Text.literal("§lT-COSMETICS MENU"), 
+            this.width / 2, 20, 0xFF9B7EBD);
         super.render(context, mouseX, mouseY, delta);
     }
 }
