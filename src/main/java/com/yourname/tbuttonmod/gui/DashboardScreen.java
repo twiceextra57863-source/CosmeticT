@@ -8,26 +8,31 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.File;
 
 public class DashboardScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger("DashboardScreen");
     private final Screen parent;
     
-    // Theme colors (can be changed later)
-    private int backgroundColor = 0xDD1A1A2E;  // Dark purple background
-    private int borderColor = 0xFF6B4E71;      // Purple border
-    private int accentColor = 0xFF9B7EBD;       // Light purple accent
-    private int textColor = 0xFFFFFFFF;          // White text
-    private int buttonColor = 0xFF4A3B4E;        // Dark purple button
-    private int buttonHoverColor = 0xFF6B4E71;   // Purple hover
+    // Theme colors
+    private int backgroundColor = 0xDD1A1A2E;  // Dark purple
+    private int borderColor = 0xFF6B4E71;      // Purple
+    private int accentColor = 0xFF9B7EBD;       // Light purple
+    private int textColor = 0xFFFFFFFF;
+    private int buttonColor = 0xFF4A3B4E;
+    private int buttonHoverColor = 0xFF6B4E71;
     
-    // Current theme name
+    // Current theme
     private String currentTheme = "Dark Purple";
+    
+    // Stats
+    private int skinCount = 0;
     
     public DashboardScreen(TitleScreen parent) {
         super(Text.literal("T-Cosmetics Dashboard"));
         this.parent = parent;
         LOGGER.info("DashboardScreen created");
+        updateSkinCount();
     }
     
     @Override
@@ -42,7 +47,7 @@ public class DashboardScreen extends Screen {
             // ========== TOP BAR BUTTONS ==========
             
             // Settings button (Gear) - Top right
-            this.addDrawableChild(createStyledButton(
+            this.addDrawableChild(createButton(
                 this.width - 45, 5, 35, 20,
                 Text.literal("⚙"),
                 button -> {
@@ -52,7 +57,7 @@ public class DashboardScreen extends Screen {
             ));
             
             // Menu button (Three lines) - Top left
-            this.addDrawableChild(createStyledButton(
+            this.addDrawableChild(createButton(
                 10, 5, 35, 20,
                 Text.literal("☰"),
                 button -> {
@@ -61,10 +66,21 @@ public class DashboardScreen extends Screen {
                 }
             ));
             
+            // Reload button - Top center
+            this.addDrawableChild(createButton(
+                this.width / 2 - 18, 5, 35, 20,
+                Text.literal("🔄"),
+                button -> {
+                    LOGGER.info("Reload button clicked");
+                    com.yourname.tbuttonmod.skin.SkinManager.loadSkins();
+                    updateSkinCount();
+                }
+            ));
+            
             // ========== MAIN MENU BUTTONS ==========
             
             // Skin Preview Button
-            this.addDrawableChild(createStyledButton(
+            this.addDrawableChild(createButton(
                 centerX, centerY, 200, 20,
                 Text.literal("👤 Skin Preview"),
                 button -> {
@@ -74,7 +90,7 @@ public class DashboardScreen extends Screen {
             ));
             
             // Theme Settings Button
-            this.addDrawableChild(createStyledButton(
+            this.addDrawableChild(createButton(
                 centerX, centerY + 30, 200, 20,
                 Text.literal("🎨 Theme Settings"),
                 button -> {
@@ -84,7 +100,7 @@ public class DashboardScreen extends Screen {
             ));
             
             // Open Skins Folder Button
-            this.addDrawableChild(createStyledButton(
+            this.addDrawableChild(createButton(
                 centerX, centerY + 60, 200, 20,
                 Text.literal("📁 Open Skins Folder"),
                 button -> {
@@ -94,19 +110,20 @@ public class DashboardScreen extends Screen {
             ));
             
             // Reload Skins Button
-            this.addDrawableChild(createStyledButton(
+            this.addDrawableChild(createButton(
                 centerX, centerY + 90, 200, 20,
                 Text.literal("🔄 Reload Skins"),
                 button -> {
                     LOGGER.info("Reload Skins button clicked");
                     com.yourname.tbuttonmod.skin.SkinManager.loadSkins();
+                    updateSkinCount();
                 }
             ));
             
             // ========== BOTTOM BUTTONS ==========
             
             // Back to Main Menu Button
-            this.addDrawableChild(createStyledButton(
+            this.addDrawableChild(createButton(
                 centerX, this.height - 40, 200, 20,
                 Text.literal("← Back to Main Menu"),
                 button -> {
@@ -115,8 +132,8 @@ public class DashboardScreen extends Screen {
                 }
             ));
             
-            // Quit Game Button (Small, bottom right)
-            this.addDrawableChild(createStyledButton(
+            // Quit Game Button
+            this.addDrawableChild(createButton(
                 this.width - 110, this.height - 30, 100, 20,
                 Text.literal("⏻ Quit"),
                 button -> {
@@ -132,45 +149,49 @@ public class DashboardScreen extends Screen {
         }
     }
     
-    /**
-     * Creates a styled button with consistent theming
-     */
-    private ButtonWidget createStyledButton(int x, int y, int width, int height, 
-                                           Text message, ButtonWidget.PressAction onPress) {
+    private ButtonWidget createButton(int x, int y, int width, int height, 
+                                      Text message, ButtonWidget.PressAction onPress) {
         return ButtonWidget.builder(message, onPress)
             .dimensions(x, y, width, height)
             .build();
     }
     
-    /**
-     * Opens the skins folder in file explorer
-     */
     private void openSkinsFolder() {
         try {
-            java.io.File skinsFolder = new java.io.File(
-                this.client.runDirectory, 
-                "TCosmetics/skins"
-            );
-            
+            File skinsFolder = new File(this.client.runDirectory, "TCosmetics/skins");
             if (!skinsFolder.exists()) {
                 skinsFolder.mkdirs();
             }
             
-            // Try to open with desktop (works on PC)
-            if (java.awt.Desktop.isDesktopSupported()) {
-                java.awt.Desktop.getDesktop().open(skinsFolder);
+            String os = System.getProperty("os.name").toLowerCase();
+            
+            if (os.contains("win")) {
+                // Windows
+                Runtime.getRuntime().exec("explorer " + skinsFolder.getAbsolutePath());
+            } else if (os.contains("mac")) {
+                // MacOS
+                Runtime.getRuntime().exec("open " + skinsFolder.getAbsolutePath());
+            } else if (os.contains("nix") || os.contains("nux")) {
+                // Linux
+                Runtime.getRuntime().exec("xdg-open " + skinsFolder.getAbsolutePath());
             } else {
-                // Fallback for mobile/other platforms
-                LOGGER.info("Skins folder location: {}", skinsFolder.getAbsolutePath());
+                // Android or other
+                LOGGER.info("Skins folder: {}", skinsFolder.getAbsolutePath());
             }
         } catch (Exception e) {
             LOGGER.error("Failed to open skins folder", e);
         }
     }
     
-    /**
-     * Apply theme colors (called from ThemeSettingsScreen)
-     */
+    private void updateSkinCount() {
+        File skinsFolder = new File(this.client.runDirectory, "TCosmetics/skins");
+        if (skinsFolder.exists()) {
+            File[] files = skinsFolder.listFiles((dir, name) -> 
+                name.endsWith(".png") || name.endsWith(".jpg"));
+            skinCount = files != null ? files.length : 0;
+        }
+    }
+    
     public void applyTheme(int themeIndex, int bgColor, int brColor, int accColor) {
         this.backgroundColor = bgColor;
         this.borderColor = brColor;
@@ -186,86 +207,56 @@ public class DashboardScreen extends Screen {
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        try {
-            // Draw custom gradient background
-            renderBackground(context);
-            
-            // Draw top and bottom bars
-            context.fill(0, 0, this.width, 30, 0xAA000000); // Top bar
-            context.fill(0, this.height - 35, this.width, this.height, 0xAA000000); // Bottom bar
-            
-            // Draw decorative borders
-            context.fill(0, 30, this.width, 32, borderColor); // Top border line
-            context.fill(0, this.height - 37, this.width, this.height - 35, borderColor); // Bottom border line
-            
-            // Draw left and right borders
-            context.fill(0, 0, 2, this.height, borderColor);
-            context.fill(this.width - 2, 0, this.width, this.height, borderColor);
-            
-            // ========== DRAW TITLE ==========
-            String title = "§lT-COSMETICS DASHBOARD";
-            int titleWidth = this.textRenderer.getWidth(title);
-            context.drawCenteredTextWithShadow(this.textRenderer, 
-                Text.literal(title), 
-                this.width / 2, 12, accentColor);
-            
-            // ========== DRAW CURRENT THEME ==========
-            String themeText = "Theme: " + currentTheme;
-            context.drawTextWithShadow(this.textRenderer, 
-                Text.literal(themeText), 
-                15, this.height - 25, 0x888888);
-            
-            // ========== DRAW STATISTICS ==========
-            int skinCount = com.yourname.tbuttonmod.skin.SkinManager.getSkins().size();
-            String statsText = "Skins: " + skinCount;
-            context.drawTextWithShadow(this.textRenderer, 
-                Text.literal(statsText), 
-                this.width - 150, this.height - 25, 0x888888);
-            
-            // ========== DRAW VERSION ==========
-            String versionText = "v1.0.0";
-            context.drawTextWithShadow(this.textRenderer, 
-                Text.literal(versionText), 
-                this.width / 2 - 20, this.height - 25, 0x444444);
-            
-            // ========== DRAW DECORATIVE ELEMENTS ==========
-            // Draw corner decorations
-            drawCornerDecoration(context, 5, 5, true);   // Top-left
-            drawCornerDecoration(context, this.width - 25, 5, false); // Top-right
-            
-        } catch (Exception e) {
-            LOGGER.error("Error in render", e);
-        }
+        // Draw background
+        context.fill(0, 0, this.width, this.height, backgroundColor);
+        
+        // Draw top bar
+        context.fill(0, 0, this.width, 30, 0xAA000000);
+        context.fill(0, 30, this.width, 32, borderColor);
+        
+        // Draw bottom bar
+        context.fill(0, this.height - 35, this.width, this.height, 0xAA000000);
+        context.fill(0, this.height - 37, this.width, this.height - 35, borderColor);
+        
+        // Draw borders
+        context.fill(0, 0, 2, this.height, borderColor);
+        context.fill(this.width - 2, 0, this.width, this.height, borderColor);
+        
+        // Draw title
+        context.drawCenteredTextWithShadow(this.textRenderer, 
+            Text.literal("§lT-COSMETICS DASHBOARD"), 
+            this.width / 2, 12, accentColor);
+        
+        // Draw theme info
+        context.drawTextWithShadow(this.textRenderer, 
+            Text.literal("Theme: " + currentTheme), 
+            15, this.height - 25, 0x888888);
+        
+        // Draw skin count
+        context.drawTextWithShadow(this.textRenderer, 
+            Text.literal("Skins: " + skinCount), 
+            this.width - 150, this.height - 25, 0x888888);
+        
+        // Draw version
+        context.drawTextWithShadow(this.textRenderer, 
+            Text.literal("v1.0.0"), 
+            this.width / 2 - 20, this.height - 25, 0x444444);
+        
+        // Draw decorative corners
+        drawCornerDecoration(context, 5, 5, true);
+        drawCornerDecoration(context, this.width - 25, 5, false);
         
         super.render(context, mouseX, mouseY, delta);
     }
     
-    /**
-     * Draw decorative corner elements
-     */
     private void drawCornerDecoration(DrawContext context, int x, int y, boolean left) {
         int size = 20;
         if (left) {
-            context.fill(x, y, x + size, y + 2, accentColor); // Top line
-            context.fill(x, y, x + 2, y + size, accentColor); // Left line
+            context.fill(x, y, x + size, y + 2, accentColor);
+            context.fill(x, y, x + 2, y + size, accentColor);
         } else {
-            context.fill(x - size, y, x, y + 2, accentColor); // Top line
-            context.fill(x - 2, y, x, y + size, accentColor); // Right line
-        }
-    }
-    
-    /**
-     * Custom background rendering
-     */
-    private void renderBackground(DrawContext context) {
-        // Fill with base color
-        context.fill(0, 0, this.width, this.height, backgroundColor);
-        
-        // Add subtle gradient effect
-        for (int i = 0; i < this.height; i += 2) {
-            float alpha = 0.05f * (1 - (float)i / this.height);
-            int color = ((int)(alpha * 255) << 24) | 0xFFFFFF;
-            context.fill(0, i, this.width, i + 1, color);
+            context.fill(x - size, y, x, y + 2, accentColor);
+            context.fill(x - 2, y, x, y + size, accentColor);
         }
     }
     
@@ -282,9 +273,10 @@ public class DashboardScreen extends Screen {
     
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // F5 key to reload skins
+        // F5 to reload
         if (keyCode == 293) { // F5
             com.yourname.tbuttonmod.skin.SkinManager.loadSkins();
+            updateSkinCount();
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
