@@ -4,12 +4,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import com.mojang.authlib.GameProfile;
 import com.yourname.tbuttonmod.skin.SkinManager;
@@ -26,12 +24,17 @@ public class SkinPreviewScreen extends Screen {
     private int scrollOffset = 0;
     private boolean clicked = false;
     
+    // Colors
+    private final int backgroundColor = 0xDD1A1A2E;
+    private final int borderColor = 0xFF6B4E71;
+    private final int accentColor = 0xFF9B7EBD;
+    
     protected SkinPreviewScreen(Screen parent) {
         super(Text.literal("Skin Preview"));
         this.parent = parent;
         this.skins = SkinManager.getSkins();
         
-        // FIXED: Proper PlayerEntity creation for Minecraft 1.21
+        // FIXED: Correct PlayerEntity constructor for Minecraft 1.21
         createPreviewPlayer();
     }
     
@@ -40,12 +43,13 @@ public class SkinPreviewScreen extends Screen {
         World world = client.world;
         
         if (world != null) {
-            // For Minecraft 1.21, we need to use a different approach
-            // Create a dummy player using the client's player data
-            if (client.player != null) {
-                // Clone the client player for preview
-                this.previewPlayer = new PlayerEntity(world, client.player.getBlockPos(), 
-                    client.player.getYaw(), new GameProfile(UUID.randomUUID(), "Preview")) {
+            try {
+                // CORRECT CONSTRUCTOR: PlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile)
+                GameProfile profile = new GameProfile(UUID.randomUUID(), "Preview");
+                BlockPos spawnPos = new BlockPos(0, 64, 0); // Default spawn position
+                float yaw = 0.0f; // Default rotation
+                
+                this.previewPlayer = new PlayerEntity(world, spawnPos, yaw, profile) {
                     @Override
                     public boolean isSpectator() { 
                         return false; 
@@ -56,116 +60,111 @@ public class SkinPreviewScreen extends Screen {
                         return false; 
                     }
                 };
-            } else {
-                // Fallback: create a completely new player
-                GameProfile profile = new GameProfile(UUID.randomUUID(), "Steve");
-                this.previewPlayer = new PlayerEntity(world, null, profile) {
-                    @Override
-                    public boolean isSpectator() { 
-                        return false; 
-                    }
-                    
-                    @Override
-                    public boolean isCreative() { 
-                        return false; 
-                    }
-                };
+                
+                System.out.println("Preview player created successfully!");
+            } catch (Exception e) {
+                System.err.println("Failed to create preview player: " + e.getMessage());
+                this.previewPlayer = null;
             }
         }
     }
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        // Draw background
+        context.fill(0, 0, this.width, this.height, backgroundColor);
+        
+        // Draw border
+        context.fill(0, 0, this.width, 5, borderColor);
+        context.fill(0, this.height - 5, this.width, this.height, borderColor);
+        context.fill(0, 0, 5, this.height, borderColor);
+        context.fill(this.width - 5, 0, this.width, this.height, borderColor);
+        
         this.mouseX = mouseX;
         this.mouseY = mouseY;
         
-        if (previewPlayer != null) {
-            drawPlayerPreview(context);
-        }
+        // Draw title
+        context.drawCenteredTextWithShadow(this.textRenderer, 
+            Text.literal("SKIN PREVIEW"), 
+            this.width / 2, 20, accentColor);
         
-        drawSkinThumbnails(context);
+        // Draw preview area
+        drawPreviewArea(context);
         
-        // Draw instructions
-        context.drawTextWithShadow(this.textRenderer, 
-            Text.literal("Click on a skin to preview"), 
-            this.width / 2 - 80, this.height - 30, 0xFFFFFF);
+        // Draw skin list
+        drawSkinList(context);
+        
+        // Draw back button hint
+        context.drawCenteredTextWithShadow(this.textRenderer, 
+            Text.literal("ESC to go back"), 
+            this.width / 2, this.height - 20, 0x888888);
         
         super.render(context, mouseX, mouseY, delta);
     }
     
-    private void drawPlayerPreview(DrawContext context) {
-        int x = this.width / 2;
-        int y = this.height / 2 + 30;
-        int size = 80;
+    private void drawPreviewArea(DrawContext context) {
+        int centerX = this.width / 2;
+        int centerY = this.height / 2;
         
-        try {
-            MatrixStack matrices = context.getMatrices();
-            matrices.push();
-            matrices.translate(x, y, 50);
-            matrices.scale(30, 30, 30);
-            matrices.multiply(net.minecraft.util.math.RotationAxis.POSITIVE_Y.rotationDegrees(180)); // Face forward
+        // Draw preview box
+        context.fill(centerX - 100, centerY - 100, centerX + 100, centerY + 100, 0x44000000);
+        context.drawBorder(centerX - 100, centerY - 100, 200, 200, borderColor);
+        
+        // Draw preview text
+        if (previewPlayer != null) {
+            context.drawCenteredTextWithShadow(this.textRenderer, 
+                Text.literal("3D Preview"), 
+                centerX, centerY - 80, 0xFFFFFF);
             
-            DiffuseLighting.enableGuiDepthLighting();
-            
-            MinecraftClient client = MinecraftClient.getInstance();
-            EntityRenderDispatcher dispatcher = client.getEntityRenderDispatcher();
-            
-            dispatcher.setRenderShadows(false);
-            dispatcher.render(previewPlayer, 0, 0, 0, 0, 1, matrices, context.getVertexConsumers(), 15728880);
-            dispatcher.setRenderShadows(true);
-            
-            DiffuseLighting.disableGuiDepthLighting();
-            matrices.pop();
-        } catch (Exception e) {
-            // Fallback if rendering fails
+            if (selectedSkin != null) {
+                context.drawCenteredTextWithShadow(this.textRenderer, 
+                    Text.literal("Selected: " + selectedSkin.getName()), 
+                    centerX, centerY + 80, accentColor);
+            } else {
+                context.drawCenteredTextWithShadow(this.textRenderer, 
+                    Text.literal("Click a skin to preview"), 
+                    centerX, centerY + 80, 0x888888);
+            }
+        } else {
             context.drawCenteredTextWithShadow(this.textRenderer, 
                 Text.literal("Preview unavailable"), 
-                x, y, 0xFF5555);
+                centerX, centerY, 0xFF5555);
         }
     }
     
-    private void drawSkinThumbnails(DrawContext context) {
-        int startY = 50 + scrollOffset;
-        int thumbSize = 40;
-        int thumbX = this.width - 120;
+    private void drawSkinList(DrawContext context) {
+        int listX = 50;
+        int listY = 80 + scrollOffset;
+        int itemHeight = 30;
         
-        // Draw section title
+        // Draw list background
+        context.fill(30, 60, 220, this.height - 60, 0x44000000);
+        
+        // Draw title
         context.drawTextWithShadow(this.textRenderer, 
             Text.literal("Available Skins (" + skins.size() + ")"), 
-            thumbX, 30, accentColor);
+            40, 65, accentColor);
         
         for (int i = 0; i < skins.size(); i++) {
             SkinManager.SkinEntry skin = skins.get(i);
-            int y = startY + (i * (thumbSize + 10));
+            int y = listY + (i * itemHeight);
             
-            // Skip if out of screen bounds
-            if (y < 40 || y > this.height - 40) continue;
+            // Skip if out of bounds
+            if (y < 60 || y > this.height - 80) continue;
             
-            // Draw thumbnail background
-            context.fill(thumbX, y, thumbX + thumbSize, y + thumbSize, 0x88000000);
-            context.drawBorder(thumbX, y, thumbSize, thumbSize, borderColor);
+            // Draw skin item background
+            int itemColor = (skin == selectedSkin) ? 0x66FFFFFF : 0x33000000;
+            context.fill(40, y, 210, y + itemHeight - 2, itemColor);
             
-            // Draw skin name (shortened)
-            String shortName = skin.getName().length() > 12 ? 
-                skin.getName().substring(0, 10) + "..." : 
-                skin.getName();
+            // Draw skin name
             context.drawTextWithShadow(this.textRenderer, 
-                Text.literal(shortName), 
-                thumbX - 70, y + thumbSize/2 - 4, 0xFFFFFF);
+                Text.literal("• " + skin.getName()), 
+                45, y + 8, 0xFFFFFF);
             
-            // Highlight selected skin
-            if (skin == selectedSkin) {
-                context.drawBorder(thumbX - 2, y - 2, thumbSize + 4, thumbSize + 4, 0xFFFFFF00);
-            }
-            
-            // Check if clicked
-            if (isMouseOver(mouseX, mouseY, thumbX, y, thumbSize, thumbSize) && clicked) {
+            // Check for click
+            if (isMouseOver(mouseX, mouseY, 40, y, 170, itemHeight - 2) && clicked) {
                 selectedSkin = skin;
                 clicked = false;
-                
-                // Here you would apply the skin to the preview player
-                // This requires additional implementation
             }
         }
     }
@@ -183,13 +182,20 @@ public class SkinPreviewScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         scrollOffset += verticalAmount * 20;
+        
         // Limit scroll
-        int maxScroll = Math.max(0, skins.size() * 50 - (this.height - 100));
-        scrollOffset = Math.min(0, Math.max(-maxScroll, scrollOffset));
+        int maxScroll = Math.max(0, skins.size() * 30 - (this.height - 150));
+        scrollOffset = Math.max(-maxScroll, Math.min(0, scrollOffset));
+        
         return true;
     }
     
-    // Color constants
-    private int borderColor = 0xFF6B4E71;
-    private int accentColor = 0xFF9B7EBD;
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 256) { // ESC key
+            client.setScreen(parent);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
 }
