@@ -31,51 +31,6 @@ public class SkinPreviewScreen extends Screen {
         this.parent = parent;
         this.skins = SkinManager.getSkins();
         
-        // Fix: Proper PlayerEntity creation for 1.21
-        World world = MinecraftClient.getInstance().world;
-        if (world != null) {
-            GameProfile profile = new GameProfile(UUID.randomUUID(), "Steve");
-            this.previewPlayer = new PlayerEntity(world, null, profile) {
-                @Override
-                public boolean isSpectator() { 
-                    return false; 
-                }
-                
-                @Override
-                public boolean isCreative() { 
-package com.yourname.tbuttonmod.gui;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import com.mojang.authlib.GameProfile;
-import com.yourname.tbuttonmod.skin.SkinManager;
-
-import java.util.List;
-import java.util.UUID;
-
-public class SkinPreviewScreen extends Screen {
-    private final Screen parent;
-    private PlayerEntity previewPlayer;
-    private float mouseX, mouseY;
-    private SkinManager.SkinEntry selectedSkin;
-    private List<SkinManager.SkinEntry> skins;
-    private int scrollOffset = 0;
-    private boolean clicked = false;
-    
-    protected SkinPreviewScreen(Screen parent) {
-        super(Text.literal("Skin Preview"));
-        this.parent = parent;
-        this.skins = SkinManager.getSkins();
-        
         // FIXED: Proper PlayerEntity creation for Minecraft 1.21
         createPreviewPlayer();
     }
