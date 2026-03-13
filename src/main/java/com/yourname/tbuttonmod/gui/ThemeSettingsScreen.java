@@ -27,9 +27,8 @@ public class ThemeSettingsScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("🌙 Dark Purple"),
             button -> {
-                if (callback != null) {
+                if (callback != null) 
                     callback.apply(0, 0xDD1A1A2E, 0xFF6B4E71, 0xFF9B7EBD);
-                }
                 this.client.setScreen(parent);
             }
         ).dimensions(centerX, 40, 200, 20).build());
@@ -38,9 +37,8 @@ public class ThemeSettingsScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("🌊 Ocean Blue"),
             button -> {
-                if (callback != null) {
+                if (callback != null) 
                     callback.apply(1, 0xDD1A2E3A, 0xFF4E7B91, 0xFF7EB2D9);
-                }
                 this.client.setScreen(parent);
             }
         ).dimensions(centerX, 70, 200, 20).build());
@@ -49,9 +47,8 @@ public class ThemeSettingsScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("🌲 Forest Green"),
             button -> {
-                if (callback != null) {
+                if (callback != null) 
                     callback.apply(2, 0xDD1A2E1A, 0xFF4E915E, 0xFF7ED99B);
-                }
                 this.client.setScreen(parent);
             }
         ).dimensions(centerX, 100, 200, 20).build());
@@ -60,9 +57,8 @@ public class ThemeSettingsScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("⚫ Midnight Black"),
             button -> {
-                if (callback != null) {
+                if (callback != null) 
                     callback.apply(3, 0xDD0A0A0A, 0xFF4A4A4A, 0xFF8A8A8A);
-                }
                 this.client.setScreen(parent);
             }
         ).dimensions(centerX, 130, 200, 20).build());
