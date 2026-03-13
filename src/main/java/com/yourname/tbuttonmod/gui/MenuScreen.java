@@ -2,14 +2,14 @@ package com.yourname.tbuttonmod.gui;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.client.MinecraftClient;
 
 public class MenuScreen extends Screen {
     private final Screen parent;
     
     public MenuScreen(Screen parent) {
-        super(Text.literal("Menu"));
+        super(Text.literal("T-Cosmetics Menu"));
         this.parent = parent;
     }
     
@@ -17,16 +17,26 @@ public class MenuScreen extends Screen {
     protected void init() {
         super.init();
         
-        // Add menu buttons
-        this.addDrawableChild(new net.minecraft.client.gui.widget.ButtonWidget.Builder(
-            Text.literal("Skin Preview"),
-            button -> MinecraftClient.getInstance().setScreen(new SkinPreviewScreen(this))
-        ).dimensions(this.width / 2 - 100, this.height / 2 - 40, 200, 20).build());
+        int centerX = this.width / 2 - 100;
+        int centerY = this.height / 2 - 60;
         
-        this.addDrawableChild(new net.minecraft.client.gui.widget.ButtonWidget.Builder(
-            Text.literal("Back"),
-            button -> MinecraftClient.getInstance().setScreen(parent)
-        ).dimensions(this.width / 2 - 100, this.height / 2 + 20, 200, 20).build());
+        // Skin Preview Button
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("👤 Skin Preview"),
+            button -> client.setScreen(new SkinPreviewScreen(this))
+        ).dimensions(centerX, centerY, 200, 20).build());
+        
+        // Settings Button
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("⚙ Settings"),
+            button -> client.setScreen(new ThemeSettingsScreen(this, null, 0))
+        ).dimensions(centerX, centerY + 30, 200, 20).build());
+        
+        // Back Button
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("← Back"),
+            button -> client.setScreen(parent)
+        ).dimensions(centerX, centerY + 80, 200, 20).build());
     }
     
     @Override
