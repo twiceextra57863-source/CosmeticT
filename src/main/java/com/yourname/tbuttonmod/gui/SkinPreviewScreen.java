@@ -1,19 +1,19 @@
 package com.yourname.tbuttonmod.gui;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.world.World;
 import com.mojang.authlib.GameProfile;
 import com.yourname.tbuttonmod.skin.SkinManager;
 
-// 🔴 YEH IMPORT MISSING THA
 import java.util.List;
 import java.util.UUID;
 
@@ -22,7 +22,7 @@ public class SkinPreviewScreen extends Screen {
     private PlayerEntity previewPlayer;
     private float mouseX, mouseY;
     private SkinManager.SkinEntry selectedSkin;
-    private List<SkinManager.SkinEntry> skins;  // Ab ye sahi kaam karega
+    private List<SkinManager.SkinEntry> skins;
     private int scrollOffset = 0;
     private boolean clicked = false;
     
@@ -31,18 +31,22 @@ public class SkinPreviewScreen extends Screen {
         this.parent = parent;
         this.skins = SkinManager.getSkins();
         
-        // Create preview player
-        GameProfile profile = new GameProfile(UUID.randomUUID(), "Steve");
-        this.previewPlayer = new PlayerEntity(
-            MinecraftClient.getInstance().world, 
-            profile, 
-            null
-        ) {
-            @Override
-            public boolean isSpectator() { return false; }
-            @Override
-            public boolean isCreative() { return false; }
-        };
+        // Fix: Proper PlayerEntity creation for 1.21
+        World world = MinecraftClient.getInstance().world;
+        if (world != null) {
+            GameProfile profile = new GameProfile(UUID.randomUUID(), "Steve");
+            this.previewPlayer = new PlayerEntity(world, null, profile) {
+                @Override
+                public boolean isSpectator() { 
+                    return false; 
+                }
+                
+                @Override
+                public boolean isCreative() { 
+                    return false; 
+                }
+            };
+        }
     }
     
     @Override
@@ -51,10 +55,10 @@ public class SkinPreviewScreen extends Screen {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
         
-        // Draw 3D player preview
-        drawPlayerPreview(context);
+        if (previewPlayer != null) {
+            drawPlayerPreview(context);
+        }
         
-        // Draw skin thumbnails
         drawSkinThumbnails(context);
         
         super.render(context, mouseX, mouseY, delta);
@@ -64,7 +68,7 @@ public class SkinPreviewScreen extends Screen {
         int x = this.width / 2;
         int y = this.height / 2 + 50;
         
-        // Setup 3D rendering
+        // Setup 3D rendering for player
         MatrixStack matrices = context.getMatrices();
         matrices.push();
         matrices.translate(x, y, 50);
@@ -72,14 +76,20 @@ public class SkinPreviewScreen extends Screen {
         
         DiffuseLighting.enableGuiDepthLighting();
         
-        // Render the player
+        // Fix: Use EntityRenderDispatcher to render player
+        MinecraftClient client = MinecraftClient.getInstance();
+        EntityRenderDispatcher dispatcher = client.getEntityRenderDispatcher();
+        
         if (selectedSkin != null) {
-            // Apply selected skin texture
-            Identifier skinTexture = selectedSkin.getTexture();
-            ((AbstractClientPlayerEntity) previewPlayer).setSkinTexture(skinTexture);
+            // Apply skin texture (different approach for 1.21)
+            // You may need to use a different method to apply custom skins
         }
         
-        // LivingEntityRenderer.render method call - fix this based on your Minecraft version
+        dispatcher.setRenderShadows(false);
+        dispatcher.render(previewPlayer, 0, 0, 0, 0, 1, matrices, context.getVertexConsumers(), 15728880);
+        dispatcher.setRenderShadows(true);
+        
+        DiffuseLighting.disableGuiDepthLighting();
         matrices.pop();
     }
     
@@ -96,14 +106,21 @@ public class SkinPreviewScreen extends Screen {
                 this.width - 40, y + thumbSize, 
                 0x88FFFFFF);
             
-            // Draw skin preview (simplified 2D version)
+            // Draw skin name
+            context.drawText(this.textRenderer, 
+                Text.literal(skin.getName().substring(0, Math.min(10, skin.getName().length()))), 
+                this.width - 150, y + thumbSize/2 - 4, 
+                0xFFFFFFFF, true);
+            
+            // Highlight selected skin
             if (skin == selectedSkin) {
                 context.drawBorder(this.width - 100, y, thumbSize, thumbSize, 0xFFFFFF00);
             }
             
             // Check if clicked
-            if (isMouseOver(mouseX, mouseY, this.width - 100, y, thumbSize, thumbSize)) {
-                // Handle click
+            if (isMouseOver(mouseX, mouseY, this.width - 100, y, thumbSize, thumbSize) && clicked) {
+                selectedSkin = skin;
+                clicked = false;
             }
         }
     }
