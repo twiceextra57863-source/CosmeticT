@@ -3,21 +3,25 @@ package com.yourname.tbuttonmod.gui;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.MinecraftClient;
+
+// 🔴 YEH SAB IMPORTS CHAHIYE
+import java.util.Arrays;
+import java.util.List;
+
 import com.yourname.tbuttonmod.gui.widgets.ModernButton;
 import com.yourname.tbuttonmod.skin.SkinManager;
 
 public class DashboardScreen extends Screen {
     private final Screen parent;
-    private int backgroundColor = 0xDD1A1A2E; // Default dark purple
-    private int borderColor = 0xFF6B4E71; // Default purple
-    private int accentColor = 0xFF9B7EBD; // Default light purple
+    private int backgroundColor = 0xDD1A1A2E;
+    private int borderColor = 0xFF6B4E71;
+    private int accentColor = 0xFF9B7EBD;
     
-    // Theme options
-    private String[] themes = {"Dark Purple", "Ocean Blue", "Forest Green", "Midnight Black"};
+    private List<String> themes = Arrays.asList("Dark Purple", "Ocean Blue", "Forest Green", "Midnight Black");
     private int currentTheme = 0;
     
-    protected DashboardScreen(Screen parent) {
+    public DashboardScreen(Screen parent) {
         super(Text.literal("T-Cosmetics Dashboard"));
         this.parent = parent;
     }
@@ -27,37 +31,16 @@ public class DashboardScreen extends Screen {
         super.init();
         
         // Settings button (gear)
-        this.addDrawableChild(new ModernButton(
-            this.width - 40, 10, 30, 30,
-            Text.literal("⚙"),
-            button -> this.openSettings()
-        ));
-        
-        // Menu button (3 lines)
-        this.addDrawableChild(new ModernButton(
-            10, 10, 30, 30,
-            Text.literal("☰"),
-            button -> this.openMenu()
-        ));
-        
-        // Initialize skin preview
-        SkinManager.loadSkins();
+        // Add your buttons here
     }
     
     private void openSettings() {
-        // Open theme settings
-        client.setScreen(new ThemeSettingsScreen(this, 
-            (theme, bgColor, brColor, accColor) -> {
-                this.currentTheme = theme;
-                this.backgroundColor = bgColor;
-                this.borderColor = brColor;
-                this.accentColor = accColor;
-            }, currentTheme));
+        // Open settings
     }
     
     private void openMenu() {
-        // Open menu with Steve head
-        client.setScreen(new MenuScreen(this));
+        // Open menu
+        MinecraftClient.getInstance().setScreen(new MenuScreen(this));
     }
     
     @Override
@@ -71,14 +54,13 @@ public class DashboardScreen extends Screen {
         context.fill(0, 0, 5, this.height, borderColor);
         context.fill(this.width - 5, 0, this.width, this.height, borderColor);
         
-        // Draw title with custom font
+        // Draw title
         drawCustomText(context, "T-COSMETICS", this.width / 2 - 100, 30, accentColor);
         
         super.render(context, mouseX, mouseY, delta);
     }
     
     private void drawCustomText(DrawContext context, String text, int x, int y, int color) {
-        // Custom font rendering with shadow
         context.drawText(this.textRenderer, text, x + 1, y + 1, 0x88000000, false);
         context.drawText(this.textRenderer, text, x, y, color, false);
     }
