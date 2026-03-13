@@ -1,4 +1,4 @@
-package com.yourname.tbuttonmod;
+package com.yourname.tbuttonmod.gui;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,38 +15,22 @@ public class MenuScreen extends Screen {
     
     @Override
     protected void init() {
-        super.init();
-        
         int centerX = this.width / 2 - 100;
         
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("📋 Main Dashboard"),
             button -> this.client.setScreen(parent)
-        ).dimensions(centerX, 50, 200, 20).build());
+        ).dimensions(centerX, 40, 200, 20).build());
         
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("👤 Skin Preview"),
             button -> this.client.setScreen(new SkinPreviewScreen(this))
-        ).dimensions(centerX, 80, 200, 20).build());
+        ).dimensions(centerX, 70, 200, 20).build());
         
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("🎨 Theme Settings"),
-            button -> this.client.setScreen(new ThemeSettingsScreen(this))
-        ).dimensions(centerX, 110, 200, 20).build());
-        
-        this.addDrawableChild(ButtonWidget.builder(
-            Text.literal("📁 Open Skins Folder"),
-            button -> {
-                try {
-                    java.awt.Desktop.getDesktop().open(new java.io.File(
-                        net.minecraft.client.MinecraftClient.getInstance().runDirectory, 
-                        "TCosmetics/skins"
-                    ));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        ).dimensions(centerX, 140, 200, 20).build());
+            button -> this.client.setScreen(new ThemeSettingsScreen(this, null))
+        ).dimensions(centerX, 100, 200, 20).build());
         
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("← Back"),
@@ -56,10 +40,8 @@ public class MenuScreen extends Screen {
     
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(0, 0, this.width, this.height, 0xDD1A1A2E);
-        context.drawCenteredTextWithShadow(this.textRenderer, 
-            Text.literal("§lT-COSMETICS MENU"), 
-            this.width / 2, 20, 0xFF9B7EBD);
+        this.renderBackground(context, mouseX, mouseY, delta);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
         super.render(context, mouseX, mouseY, delta);
     }
 }
