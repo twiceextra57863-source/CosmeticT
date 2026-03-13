@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6.11'  // Stable release, not SNAPSHOT
+	id 'fabric-loom' version '1.6.11'
 	id 'maven-publish'
 }
 
@@ -28,7 +28,7 @@ dependencies {
 	// Fabric Loader
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
-	// Fabric API - for 1.21
+	// Fabric API
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
@@ -54,10 +54,4 @@ java {
 	withSourcesJar()
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
-}
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}" }
-	}
 }
