@@ -11,10 +11,16 @@ public class ModernButton extends ButtonWidget {
     }
     
     @Override
-    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         int color = this.isHovered() ? 0xFF9B7EBD : 0xFF6B4E71;
         context.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, color);
-        context.drawCenteredTextWithShadow(this.getTextRenderer(), this.getMessage(), 
+        
+        // Fix: Use MinecraftClient.getInstance().textRenderer instead of getTextRenderer()
+        context.drawCenteredTextWithShadow(this.getMinecraft().textRenderer, this.getMessage(), 
             this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, 0xFFFFFF);
+    }
+    
+    private net.minecraft.client.MinecraftClient getMinecraft() {
+        return net.minecraft.client.MinecraftClient.getInstance();
     }
 }
