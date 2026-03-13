@@ -20,14 +20,13 @@ public class SkinPreviewScreen extends Screen {
     }
     
     private void loadSkins() {
-        File skinsFolder = new File(
-            this.client.runDirectory, 
-            "TCosmetics/skins"
-        );
+        skinFiles.clear();
+        File skinsFolder = new File(this.client.runDirectory, "TCosmetics/skins");
         
         if (skinsFolder.exists()) {
             File[] files = skinsFolder.listFiles((dir, name) -> 
-                name.endsWith(".png") || name.endsWith(".jpg"));
+                name.toLowerCase().endsWith(".png") || 
+                name.toLowerCase().endsWith(".jpg"));
             
             if (files != null) {
                 for (File file : files) {
@@ -39,20 +38,31 @@ public class SkinPreviewScreen extends Screen {
     
     @Override
     protected void init() {
-        int centerX = this.width / 2 - 50;
+        int centerX = this.width / 2 - 60;
         
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("🔄 Reload"),
             button -> {
-                skinFiles.clear();
                 loadSkins();
             }
-        ).dimensions(centerX - 100, this.height - 40, 80, 20).build());
+        ).dimensions(centerX - 110, this.height - 40, 80, 20).build());
+        
+        this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("📁 Open Folder"),
+            button -> {
+                try {
+                    File skinsFolder = new File(this.client.runDirectory, "TCosmetics/skins");
+                    java.awt.Desktop.getDesktop().open(skinsFolder);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        ).dimensions(centerX - 20, this.height - 40, 80, 20).build());
         
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("← Back"),
             button -> this.client.setScreen(parent)
-        ).dimensions(centerX + 20, this.height - 40, 80, 20).build());
+        ).dimensions(centerX + 70, this.height - 40, 80, 20).build());
     }
     
     @Override
@@ -67,11 +77,10 @@ public class SkinPreviewScreen extends Screen {
         // Skin list
         if (skinFiles.isEmpty()) {
             context.drawCenteredTextWithShadow(this.textRenderer, 
-                Text.literal("No skins found in TCosmetics/skins/"), 
+                Text.literal("No skins found!"), 
                 this.width / 2, this.height / 2, 0xFF5555);
-            
             context.drawCenteredTextWithShadow(this.textRenderer, 
-                Text.literal("Add .png files to the folder and restart"), 
+                Text.literal("Place .png files in TCosmetics/skins/"), 
                 this.width / 2, this.height / 2 + 20, 0x888888);
         } else {
             context.drawTextWithShadow(this.textRenderer, 
@@ -79,19 +88,23 @@ public class SkinPreviewScreen extends Screen {
                 50, 45, 0xFFFFFF);
             
             for (int i = 0; i < Math.min(skinFiles.size(), 15); i++) {
-                int y = 70 + (i * 20);
-                context.drawTextWithShadow(this.textRenderer, 
-                    Text.literal("• " + skinFiles.get(i)), 
-                    70, y, 0xCCCCCC);
-            }
-            
-            if (skinFiles.size() > 15) {
-                context.drawTextWithShadow(this.textRenderer, 
-                    Text.literal("... and " + (skinFiles.size() - 15) + " more"), 
-                    70, 70 + (15 * 20), 0x888888);
+                int y = 70 + (i * 20) + scrollOffset;
+                if (y > 45 && y < this.height - 50) {
+                    context.drawTextWithShadow(this.textRenderer, 
+                        Text.literal("• " + skinFiles.get(i)), 
+                        70, y, 0xCCCCCC);
+                }
             }
         }
         
         super.render(context, mouseX, mouseY, delta);
+    }
+    
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        scrollOffset += verticalAmount * 10;
+        int maxScroll = Math.max(0, skinFiles.size() * 20 - (this.height - 150));
+        scrollOffset = Math.max(-maxScroll, Math.min(0, scrollOffset));
+        return true;
     }
 }
