@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.6.11'  // Stable release, not SNAPSHOT
 	id 'maven-publish'
 }
 
@@ -16,24 +16,6 @@ repositories {
 		name = "Fabric"
 		url = "https://maven.fabricmc.net/"
 	}
-	maven {
-		name = "Minecraft Libraries"
-		url = "https://libraries.minecraft.net/"
-	}
-}
-
-loom {
-	splitEnvironmentSourceSets()
-
-	mods {
-		"tbuttonmod" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
-	
-	// Remove access widener completely if not needed
-	// accessWidenerPath = file("src/main/resources/tbuttonmod.accesswidener")
 }
 
 dependencies {
@@ -46,7 +28,7 @@ dependencies {
 	// Fabric Loader
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
-	// Fabric API - Use specific version for 1.21
+	// Fabric API - for 1.21
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
@@ -79,17 +61,3 @@ jar {
 		rename { "${it}_${project.archivesBaseName}" }
 	}
 }
-
-// Clean task
-clean {
-	delete file("run")
-	delete file("build")
-}
-
-// Ensure build directory exists
-tasks.register('ensureBuildDir') {
-	doLast {
-		file("build/libs").mkdirs()
-	}
-}
-build.dependsOn ensureBuildDir
