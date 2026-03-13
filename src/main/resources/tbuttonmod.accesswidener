@@ -1,0 +1,133 @@
+# TButton Mod Access Widener Configuration
+# Minecraft Version: 1.21
+# Mod Version: 1.0.0
+# Generated: 2024
+
+# ============================================
+# ACCESS WIDENER FORMAT:
+# ============================================
+# 
+# Access widener allows your mod to access private/protected Minecraft members
+# 
+# FORMAT: <access> <class> <member> <descriptor>
+# 
+# ACCESS TYPES:
+#   accessible  - Makes member accessible (removes private/protected)
+#   extendable  - Makes class extendable (removes final)
+#   mutable     - Makes field mutable (removes final)
+#
+# CLASS FORMAT: Use package/with/slashes/ClassName
+# 
+# DESCRIPTORS:
+#   ()V        - void method()
+#   (I)V       - void method(int)
+#   (Ljava/lang/String;)V - void method(String)
+#   I          - int field
+#   Ljava/lang/String; - String field
+# ============================================
+
+# ============================================
+# TButton Mod Access Rules
+# ============================================
+
+# ----------------------------------------------------------------------
+# 1. SKIN PREVIEW SYSTEM ACCESS
+# ----------------------------------------------------------------------
+# Access to player skin texture for 3D preview
+# accessible net/minecraft/client/network/AbstractClientPlayerEntity field_3819 Lnet/minecraft/util/Identifier;
+# accessible net/minecraft/client/network/AbstractClientPlayerEntity method_45198 ()Lnet/minecraft/util/Identifier;
+
+# Access to player model for rendering
+# accessible net/minecraft/client/entity/PlayerEntityRenderer model Lnet/minecraft/client/model/PlayerModel;
+
+# ----------------------------------------------------------------------
+# 2. DASHBOARD GUI ACCESS
+# ----------------------------------------------------------------------
+# Access to screen rendering methods for custom GUI
+# accessible net/minecraft/client/gui/screen/Screen renderBackground (Lnet/minecraft/client/util/math/MatrixStack;IIF)V
+# accessible net/minecraft/client/gui/screen/Screen init ()V
+
+# Access to button rendering for custom buttons
+# accessible net/minecraft/client/gui/widget/ButtonWidget drawWidget (Lnet/minecraft/client/util/math/MatrixStack;IIF)V
+
+# ----------------------------------------------------------------------
+# 3. THEME SYSTEM ACCESS
+# ----------------------------------------------------------------------
+# Access to color handling
+# accessible net/minecraft/client/gui/screen/Screen fillGradient (Lnet/minecraft/client/util/math/MatrixStack;IIIIII)V
+
+# ----------------------------------------------------------------------
+# 4. FILE SYSTEM ACCESS
+# ----------------------------------------------------------------------
+# Access to game directory for TCosmetics folder
+# accessible net/minecraft/client/MinecraftClient runDirectory Ljava/io/File;
+
+# ----------------------------------------------------------------------
+# 5. KEY BINDING ACCESS
+# ----------------------------------------------------------------------
+# Access to key binding system
+# accessible net/minecraft/client/option/KeyBinding pressed Z
+# accessible net/minecraft/client/option/KeyBinding setPressed (Z)V
+
+# ============================================
+# ACTIVE ACCESS RULES (Uncomment as needed)
+# ============================================
+
+# ---- SKIN PREVIEW (Required for 3D skin rendering) ----
+accessible net/minecraft/client/network/AbstractClientPlayerEntity skinTexture Lnet/minecraft/util/Identifier;
+accessible net/minecraft/client/network/AbstractClientPlayerEntity getSkinTexture ()Lnet/minecraft/util/Identifier;
+accessible net/minecraft/client/network/AbstractClientPlayerEntity setSkinTexture (Lnet/minecraft/util/Identifier;)V
+
+# ---- PLAYER RENDERER (For 3D model control) ----
+accessible net/minecraft/client/render/entity/PlayerEntityRenderer model Lnet/minecraft/client/model/PlayerModel;
+accessible net/minecraft/client/render/entity/LivingEntityRenderer render (Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V
+
+# ---- SCREEN ACCESS (For custom dashboard) ----
+accessible net/minecraft/client/gui/screen/Screen textRenderer Lnet/minecraft/client/font/TextRenderer;
+accessible net/minecraft/client/gui/screen/Screen client Lnet/minecraft/client/MinecraftClient;
+accessible net/minecraft/client/gui/screen/Screen width I
+accessible net/minecraft/client/gui/screen/Screen height I
+
+# ---- BUTTON CUSTOMIZATION (For T button) ----
+accessible net/minecraft/client/gui/widget/ButtonWidget width I
+accessible net/minecraft/client/gui/widget/ButtonWidget height I
+accessible net/minecraft/client/gui/widget/ButtonWidget x I
+accessible net/minecraft/client/gui/widget/ButtonWidget y I
+accessible net/minecraft/client/gui/widget/ButtonWidget message Lnet/minecraft/text/Text;
+accessible net/minecraft/client/gui/widget/ButtonWidget onPress Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;
+
+# ---- TITLE SCREEN MODIFICATION (For T button placement) ----
+extendable net/minecraft/client/gui/screen/TitleScreen
+accessible net/minecraft/client/gui/screen/TitleScreen drawMenuBackground (Lnet/minecraft/client/util/math/MatrixStack;)V
+
+# ---- FILE ACCESS (For TCosmetics folder) ----
+accessible net/minecraft/client/MinecraftClient getRunDirectory ()Ljava/io/File;
+
+# ---- RENDERING HELPERS (For custom graphics) ----
+accessible net/minecraft/client/gui/DrawContext drawTexture (Lnet/minecraft/util/Identifier;IIIIII)V
+accessible net/minecraft/client/gui/DrawContext fill (IIIIII)V
+
+# ============================================
+# OPTIONAL RULES (For advanced features)
+# ============================================
+
+# ---- ADVANCED SKIN CONTROL ----
+# accessible net/minecraft/client/util/DefaultSkinHelper getSkinTexture (Ljava/util/UUID;)Lnet/minecraft/util/Identifier;
+# accessible net/minecraft/client/util/DefaultSkinHelper getModel (Ljava/util/UUID;)Ljava/lang/String;
+
+# ---- CUSTOM FONT RENDERING ----
+# accessible net/minecraft/client/font/TextRenderer draw (Lnet/minecraft/text/Text;FFIZLnet/minecraft/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ZII)I
+
+# ---- ADVANCED GUI EFFECTS ----
+# accessible net/minecraft/client/gui/screen/Screen renderBackgroundTexture (I)V
+# accessible net/minecraft/client/gui/screen/Screen applyTransparency (Lnet/minecraft/client/util/math/MatrixStack;)V
+
+# ============================================
+# VERSION INFORMATION
+# ============================================
+# This access widener is compatible with:
+# - Minecraft: 1.21
+# - Fabric Loader: >=0.15.0
+# - Fabric API: >=0.96.0+1.21
+#
+# Last Updated: 2024
